@@ -7,7 +7,6 @@ mean_func = lambda x, y: np.exp(x) * np.cos(2 * y ** 2)
 
 
 def modified_euler(x, y, n_steps: int, h_loss: float):
-    """ Modified Euler Method """
     for i in range(n_steps - 1):
         pre_counted = y[i] + h_loss / 2 * mean_func(x[i], y[i])
         y[i + 1] = y[i] + h_loss * mean_func(x[i] + h_loss / 2, pre_counted)
@@ -15,7 +14,6 @@ def modified_euler(x, y, n_steps: int, h_loss: float):
 
 
 def euler_recount(x, y, n_steps: int, h_loss: float):
-    """ Method of Euler with Recount """
     for i in range(n_steps - 1):
         pre_counted = y[i] + h_loss * mean_func(x[i], y[i])
         y[i + 1] = y[i] + h_loss / 2 * (mean_func(x[i], y[i]) + mean_func(x[i] + h_loss, pre_counted))
@@ -23,7 +21,6 @@ def euler_recount(x, y, n_steps: int, h_loss: float):
 
 
 def euler_right_diff(x, y, n_steps: int, h_loss: float):
-    """ Method of Euler with Right Differences """
     for i in range(n_steps - 1):
         y[i + 1] = y[i] + h_loss * mean_func(x[i], y[i])
     return y
@@ -65,7 +62,7 @@ if __name__ == "__main__":
     b = 1.0
     x_0 = 0
     y_0 = 1
-    h_list = [0.1, 0.025, 0.01]
+    h_list = [0.07, 0.05, 0.001]
 
     init_render(modified_euler, a, b, x_0, y_0, h_list, 'modified_euler')
     init_render(euler_recount, a, b, x_0, y_0, h_list, 'euler_recount')
