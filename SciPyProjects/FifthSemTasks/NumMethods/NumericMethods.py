@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -39,7 +37,8 @@ def euler_central_diff(x, y, n_steps: int, h_loss: float):
     return y
 
 
-def init_render(foo, first_bound: float, second_bound: float, x_zero: int, y_zero: int, h_losses: [float], label: str):
+
+def init_render(foo, first_bound: float, second_bound: float, x_zero: int, y_zero: int, h_losses: [float], title: str):
     for h_loss in h_losses:
         n_steps = int((second_bound - first_bound) / h_loss)
 
@@ -52,8 +51,10 @@ def init_render(foo, first_bound: float, second_bound: float, x_zero: int, y_zer
         y_dif_set = foo(x_set, y_set, n_steps, h_loss)
         x_set = np.linspace(first_bound, second_bound, num=n_steps)
 
-        plt.plot(x_set, y_dif_set, label=h_loss)
-    plt.legend("Label: {0}".format(label))
+        plt.plot(x_set, y_dif_set, label=f'Accuracy: {h_loss}')
+        plt.legend()
+        plt.title(title)
+
     plt.show()
 
 
@@ -62,12 +63,10 @@ if __name__ == "__main__":
     b = 1.0
     x_0 = 0
     y_0 = 1
-    h_list = [0.07, 0.05, 0.001]
+    h_list = [0.015, 0.010, 0.005]
 
     init_render(modified_euler, a, b, x_0, y_0, h_list, 'modified_euler')
     init_render(euler_recount, a, b, x_0, y_0, h_list, 'euler_recount')
-    init_render(euler_right_diff, a, b, x_0, y_0, h_list, 'euler_right_diff')
-    init_render(euler_central_diff, a, b, x_0, y_0, h_list, 'euler_cent_diff')
+    init_render(euler_central_diff, a, b, x_0, y_0, h_list, 'euler_central_diff')
     init_render(euler_left_diff, a, b, x_0, y_0, h_list, 'euler_left_diff')
-
-
+    init_render(euler_right_diff, a, b, x_0, y_0, h_list, 'euler_right_diff')
