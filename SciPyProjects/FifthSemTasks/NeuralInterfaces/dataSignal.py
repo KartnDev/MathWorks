@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 def read_signals(path: str):
     first_signal = []
     second_signal = []
@@ -18,8 +19,8 @@ def read_signals(path: str):
     second_signal = np.array(second_signal)
     third_signal = np.array(third_signal)
 
-    return np.absolute(np.fft.rfft(first_signal)) ** 2,\
-           np.absolute(np.fft.rfft(second_signal)) ** 2,\
+    return np.absolute(np.fft.rfft(first_signal)) ** 2, \
+           np.absolute(np.fft.rfft(second_signal)) ** 2, \
            np.absolute(np.fft.rfft(third_signal)) ** 2
 
 
