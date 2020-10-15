@@ -25,15 +25,17 @@ def euler_right_diff(x, y, n_steps: int, h_loss: float):
 
 
 def euler_left_diff(x, y, n_steps: int, h_loss: float):
-    for i in range(n_steps - 1):
-        y[i + 1] = y[i] + h_loss * mean_func(x[i + 1], y[i + 1])
+    for i in range(n_steps):
+        y[i] = y[i - 1] + h_loss * mean_func(x[i-1], y[i-1])
     return y
 
 
 def euler_central_diff(x, y, n_steps: int, h_loss: float):
+    x_0 = x[0]
+    y_0 = y[0]
     y[1] = y[0] + h_loss * mean_func(x[0], y[0])
     for i in range(1, n_steps - 1):
-        y[i + 1] = y[i - 1] + 2 * h_loss * mean_func(x[i], y[i])
+        y[i + 1] = y[i - 1] + 2 * h_loss * mean_func(x[i-1], y[i-1])
     return y
 
 
@@ -45,7 +47,7 @@ def init_render(foo, first_bound: float, second_bound: float, x_zero: int, y_zer
         x_set = np.linspace(first_bound, second_bound, num=n_steps)
         x_set[0] = x_zero
 
-        y_set = x_set
+        y_set = x_set.copy()
         y_set[0] = y_zero
 
         y_dif_set = foo(x_set, y_set, n_steps, h_loss)
