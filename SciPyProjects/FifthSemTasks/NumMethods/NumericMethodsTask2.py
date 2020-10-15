@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-mean_func = lambda x, y: np.exp(x) * np.cos(2 * y ** 2)
+
+def mean_func(x, y):
+    return np.exp(x) * np.cos(2 * y ** 2)
 
 
 def adams_fourth(x, y, n_steps: int, h_loss: float):
