@@ -5,12 +5,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
+
 def discrete_fourier_transform(x_real: Iterable):
     n_count = len(x_real)
 
     result_complex_array = np.zeros(n_count, dtype=np.float64) + 0j
-    for k in range(0, n_count):
-        for n in range(0, n_count):
+    for k in prange(0, n_count):
+        for n in prange(0, n_count):
             oscillate_coefficient = 2 * np.pi / n_count * k * n
 
             result_complex_array[k] += x_real[n] * (np.cos(oscillate_coefficient) - np.sin(oscillate_coefficient) * 1j)
@@ -51,7 +52,7 @@ def rand_time_and_exec(callback, x_sequence: Iterable):
 
 
 if __name__ == '__main__':
-    x_set = np.random.random(512)
+    x_set = np.random.random(1024 * 2)
 
     discrete_time, discrete = rand_time_and_exec(discrete_fourier_transform, x_set)
     fast_time, fast = rand_time_and_exec(fft, x_set)
