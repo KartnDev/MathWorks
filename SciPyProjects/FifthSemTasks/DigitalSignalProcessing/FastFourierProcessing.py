@@ -55,7 +55,7 @@ def rand_time_and_exec(callback, x_sequence: Iterable):
 
 
 if __name__ == '__main__':
-    x_set = np.random.random(1024 * 2)
+    x_set = np.random.random(1024 * 8)
 
     discrete_time, discrete = rand_time_and_exec(discrete_fourier_transform, x_set)
     fast_time, fast = rand_time_and_exec(fast_fourier_transform, x_set)

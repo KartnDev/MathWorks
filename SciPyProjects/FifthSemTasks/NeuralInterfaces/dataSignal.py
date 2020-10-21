@@ -25,8 +25,8 @@ def read_signals(path: str):
 
 
 if __name__ == '__main__':
-    open_eyes = read_signals("C:\\Users\\dmutp\\Desktop\\OpenEyes.asc")
-    closed_eyes = read_signals("C:\\Users\\dmutp\\Desktop\\ClosedEyes.asc")
+    open_eyes = read_signals("Resource\\OpenEyes.asc")
+    closed_eyes = read_signals("Resource\\ClosedEyes.asc")
     plt.plot(open_eyes[0][3:105], label='open')
     plt.plot(closed_eyes[0][3:105], label='closed')
     plt.legend()
