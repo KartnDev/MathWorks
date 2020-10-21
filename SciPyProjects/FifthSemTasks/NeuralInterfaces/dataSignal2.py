@@ -44,8 +44,8 @@ def correlation(x: Iterable, y: Iterable):
 
 
 if __name__ == '__main__':
-    x_open, y_open, z_open = read_signals("ПОМЕНЯЙ_ПУТЬ\\OpenEyes.asc")
-    x_closed, y_closed, z_closed = read_signals("ПОМЕНЯЙ_ПУТЬ\\ClosedEyes.asc")
+    x_open, y_open, z_open = read_signals("Resource\\OpenEyes.asc")
+    x_closed, y_closed, z_closed = read_signals("Resource\\ClosedEyes.asc")
 
     print("Analysing Signals")
     print("Pearson: ", pearsonr(x_open[3:105], y_open[3:105])[0])
