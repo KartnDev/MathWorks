@@ -35,7 +35,7 @@ class DeepNeuralNetwork:
         self.topology = topology
         self.weights = {}
         for i in range(0, len(topology) - 1):
-            self.weights[f'W{i}'] = np.random.random((topology[i + 1], topology[i])) * np.sqrt(1. / topology[i + 1])
+            self.weights[f'W{i}'] = np.random.randn(topology[i + 1], topology[i]) * np.sqrt(1. / topology[i + 1])
 
     def feed_forward(self, x_vector: np.array):
         params = {'A0': x_vector}
@@ -68,14 +68,16 @@ class DeepNeuralNetwork:
         predictions = []
 
         for x, y in zip(x_val, y_val):
-            output = self.feed_forward(x)
+            len_last = len(self.topology) - 1
+            output = self.feed_forward(x)[f'A{len_last}']
             pred = np.argmax(output)
-            predictions.append(pred == np.argmax(y))
+            predictions.append(pred == y)
 
         return np.mean(predictions)
 
     def train(self, x_train, y_train, x_val, y_val):
         start_time = time.time()
+        len_last = len(self.topology) - 1
         for iteration in range(self.epochs):
             for x, y in zip(x_train, y_train):
                 output = self.feed_forward(x)
@@ -92,21 +94,28 @@ class DeepNeuralNetwork:
 
 
 def x_y_split_data_frame(data_frame, random_state: bool = False):
-    x, y = data_frame.iloc[:, 1:].values / 255, data_frame.iloc[:, 0:1].values
+    x, y = data_frame.iloc[:, 1:].values.astype('float64'), data_frame.iloc[:, 0:1].values
     if random_state:
         x += np.random.normal(0, 1, x.shape)
-    return x, y
+    return x / 255, y.reshape(len(y))
 
 
 if __name__ == '__main__':
-    x, y = fetch_openml('mnist_784', version=1, return_X_y=True)
+    train = pd.read_csv('..\\Resources\\mnist_train.csv')
+    test = pd.read_csv('..\\Resources\\mnist_test.csv')
 
-    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.15, random_state=42)
+    x_train, y_train = x_y_split_data_frame(train)
+    x_val, y_val = x_y_split_data_frame(test)
 
-    dnn = DeepNeuralNetwork([784, 128, 64, 10], epochs=1)
+    dnn = DeepNeuralNetwork([784, 128, 64, 10], epochs=10)
+
+    ff1 = dnn.feed_forward(x_val[4])
+    ff1 = dnn.feed_forward(x_val[55])
+    print()
     dnn.train(x_train, y_train, x_val, y_val)
+    len_last = len(dnn.topology) - 1
+    for x, y in zip(x_val, y_val):
 
-    for i in range(len(x_val)):
-        pred = dnn.feed_forward(x_val[i])['A3']
-        real = y_val[i]
-        print(f'Prediction: {pred}, real is {real}')
+        output = dnn.feed_forward(x)[f'A{len_last}']
+        pred = np.argmax(output)
+        print(output, " | ", pred)
