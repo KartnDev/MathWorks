@@ -55,13 +55,13 @@ class DeepNeuralNetwork:
 
     def update_network_parameters(self, changes_to_w):
         for key, value in changes_to_w.items():
-            self.weights[key] -= self.l_rate * value
+            self.weights[key[0] + str(int(key[1]) - 1)] -= self.learn_rate * value
 
     def compute_accuracy(self, x_val, y_val):
         predictions = []
 
         for x, y in zip(x_val, y_val):
-            output = self.forward_pass(x)
+            output = self.feed_forward(x)
             pred = np.argmax(output)
             predictions.append(pred == np.argmax(y))
 
@@ -81,12 +81,17 @@ class DeepNeuralNetwork:
             ))
 
 
-if __name__ == '__main__':
-    x, y = fetch_openml('mnist_784', version=1, return_X_y=True)
-    x = (x / 255).astype('float32')
+def x_y_split_data_frame(data_frame):
+    x, y = data_frame.iloc[:, 1:].values / 255, train.iloc[:, 0:1].values / 255
+    return x, y
 
-    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.15, random_state=42)
+
+if __name__ == '__main__':
+    train = pd.read_csv('..\\Resources\\mnist_train.csv')
+    test = pd.read_csv('..\\Resources\\mnist_test.csv')
+
+    x_train, y_train = x_y_split_data_frame(train)
+    x_val, y_val = x_y_split_data_frame(test)
 
     dnn = DeepNeuralNetwork([784, 512, 256, 128, 64, 10])
     dnn.train(x_train, y_train, x_val, y_val)
-
