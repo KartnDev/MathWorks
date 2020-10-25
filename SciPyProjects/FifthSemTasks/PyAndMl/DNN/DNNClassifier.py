@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 
 import numpy as np
 import pandas as pd
+from numba import jit, prange
 
 
 def soft_max(x: np.array, derivative: bool = False):
@@ -13,6 +14,12 @@ def soft_max(x: np.array, derivative: bool = False):
     if derivative:
         return exps / np.sum(exps, axis=0) * (1 - exps / np.sum(exps, axis=0))
     return exps / np.sum(exps, axis=0)
+
+
+def sigmoid(x: np.array, derivative: bool = False):
+    if derivative:
+        return (np.exp(-x)) / ((np.exp(-x) + 1) ** 2)
+    return 1 / (1 + np.exp(-x))
 
 
 def vector_from_val(y: int):
@@ -35,7 +42,7 @@ class DeepNeuralNetwork:
 
         for i in range(1, len(self.topology)):
             params[f'Z{i}'] = np.dot(self.weights[f'W{i - 1}'], params[f'A{i - 1}'])
-            params[f'A{i}'] = soft_max(params[f'Z{i}'])
+            params[f'A{i}'] = sigmoid(params[f'Z{i}'])
 
         return params
 
@@ -48,7 +55,7 @@ class DeepNeuralNetwork:
         change_w[f'W{len_last}'] = np.outer(error, params[f'A{len_last - 1}'])
 
         for i in reversed(range(2, len(self.topology))):
-            error = np.dot(self.weights[f'W{i - 1}'].T, error) * soft_max(params[f'Z{i - 1}'], derivative=True)
+            error = np.dot(self.weights[f'W{i - 1}'].T, error) * sigmoid(params[f'Z{i - 1}'], derivative=True)
             change_w[f'W{i - 1}'] = np.outer(error, params[f'A{i - 2}'])
 
         return change_w
@@ -80,18 +87,26 @@ class DeepNeuralNetwork:
                 iteration + 1, time.time() - start_time, accuracy * 100
             ))
 
+    def predict(self, x_value: np.array) -> int:
+        return self.feed_forward(x_value).max
 
-def x_y_split_data_frame(data_frame):
-    x, y = data_frame.iloc[:, 1:].values / 255, train.iloc[:, 0:1].values / 255
+
+def x_y_split_data_frame(data_frame, random_state: bool = False):
+    x, y = data_frame.iloc[:, 1:].values / 255, data_frame.iloc[:, 0:1].values
+    if random_state:
+        x += np.random.normal(0, 1, x.shape)
     return x, y
 
 
 if __name__ == '__main__':
-    train = pd.read_csv('..\\Resources\\mnist_train.csv')
-    test = pd.read_csv('..\\Resources\\mnist_test.csv')
+    x, y = fetch_openml('mnist_784', version=1, return_X_y=True)
 
-    x_train, y_train = x_y_split_data_frame(train)
-    x_val, y_val = x_y_split_data_frame(test)
+    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.15, random_state=42)
 
-    dnn = DeepNeuralNetwork([784, 512, 256, 128, 64, 10])
+    dnn = DeepNeuralNetwork([784, 128, 64, 10], epochs=1)
     dnn.train(x_train, y_train, x_val, y_val)
+
+    for i in range(len(x_val)):
+        pred = dnn.feed_forward(x_val[i])['A3']
+        real = y_val[i]
+        print(f'Prediction: {pred}, real is {real}')
