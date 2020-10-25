@@ -107,15 +107,7 @@ if __name__ == '__main__':
     x_train, y_train = x_y_split_data_frame(train)
     x_val, y_val = x_y_split_data_frame(test)
 
-    dnn = DeepNeuralNetwork([784, 128, 64, 10], epochs=10)
+    dnn = DeepNeuralNetwork([784, 512, 256, 128, 32, 64, 10], epochs=20)
 
-    ff1 = dnn.feed_forward(x_val[4])
-    ff1 = dnn.feed_forward(x_val[55])
-    print()
     dnn.train(x_train, y_train, x_val, y_val)
-    len_last = len(dnn.topology) - 1
-    for x, y in zip(x_val, y_val):
 
-        output = dnn.feed_forward(x)[f'A{len_last}']
-        pred = np.argmax(output)
-        print(output, " | ", pred)
