@@ -1,3 +1,4 @@
+import os
 import time
 from typing import Iterable
 from numba import jit, prange
@@ -5,13 +6,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-@jit(nopython=True)
+@jit(nopython=True, parallel=True)
 def discrete_fourier_transform(x_real: Iterable):
     n_count = len(x_real)
 
     result_complex_array = np.zeros(n_count, dtype=np.float64) + 0j
-    for k in range(0, n_count):
-        for n in range(0, n_count):
+    for k in prange(0, n_count):
+        for n in prange(0, n_count):
             oscillate_coefficient = 2 * np.pi / n_count * k * n
 
             result_complex_array[k] += x_real[n] * (np.cos(oscillate_coefficient) - np.sin(oscillate_coefficient) * 1j)
@@ -55,12 +56,13 @@ def rand_time_and_exec(callback, x_sequence: Iterable):
 
 
 if __name__ == '__main__':
-    x_set = np.random.random(1024 * 8)
+    os.environ['MKL_NUM_THREADS'] = '24'
+    x_set = np.random.random(1024 * 1024 * 1024)
 
-    discrete_time, discrete = rand_time_and_exec(discrete_fourier_transform, x_set)
-    fast_time, fast = rand_time_and_exec(fast_fourier_transform, x_set)
+    #discrete_time, discrete = rand_time_and_exec(discrete_fourier_transform, x_set)
+    #fast_time, fast = rand_time_and_exec(fast_fourier_transform, x_set)
     numpy_time, numpy_val = rand_time_and_exec(np.fft.fft, x_set)
 
-    print(f"Discrete Time: {discrete_time} IsSame: {np.allclose(numpy_val, discrete)}")
-    print(f"Fast Time: {fast_time} IsSame: {np.allclose(numpy_val, fast)}")
+    #print(f"Discrete Time: {discrete_time} IsSame: {np.allclose(numpy_val, discrete)}")
+    #print(f"Fast Time: {fast_time} IsSame: {np.allclose(numpy_val, fast)}")
     print(f"Numpy Time: {numpy_time} IsSame: {np.allclose(numpy_val, numpy_val)}")
