@@ -1,4 +1,8 @@
 import os
+import time
+
+from sklearn.datasets import fetch_openml
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 import pandas as pd
@@ -11,8 +15,16 @@ def soft_max(x: np.array, derivative: bool = False):
     return exps / np.sum(exps, axis=0)
 
 
+def vector_from_val(y: int):
+    res = np.zeros(10)
+    res[int(y)] = 1.0
+    return res
+
+
 class DeepNeuralNetwork:
-    def __init__(self, topology: [int]):
+    def __init__(self, topology: [int], epochs: int = 1, learn_rate: float = 0.001):
+        self.learn_rate = learn_rate
+        self.epochs = epochs
         self.topology = topology
         self.weights = {}
         for i in range(0, len(topology) - 1):
@@ -41,19 +53,40 @@ class DeepNeuralNetwork:
 
         return change_w
 
-    def 
+    def update_network_parameters(self, changes_to_w):
+        for key, value in changes_to_w.items():
+            self.weights[key] -= self.l_rate * value
 
+    def compute_accuracy(self, x_val, y_val):
+        predictions = []
 
-def vectorize(y: int):
-    res = np.zeros(10)
-    res[y] = 1.0
-    return res
+        for x, y in zip(x_val, y_val):
+            output = self.forward_pass(x)
+            pred = np.argmax(output)
+            predictions.append(pred == np.argmax(y))
+
+        return np.mean(predictions)
+
+    def train(self, x_train, y_train, x_val, y_val):
+        start_time = time.time()
+        for iteration in range(self.epochs):
+            for x, y in zip(x_train, y_train):
+                output = self.feed_forward(x)
+                changes_to_w = self.back_propagation(output, vector_from_val(y))
+                self.update_network_parameters(changes_to_w)
+
+            accuracy = self.compute_accuracy(x_val, y_val)
+            print('Epoch: {0}, Time Spent: {1:.2f}s, Accuracy: {2:.2f}%'.format(
+                iteration + 1, time.time() - start_time, accuracy * 100
+            ))
 
 
 if __name__ == '__main__':
-    mnist = pd.read_csv("..\\Resources\\mnist_test.csv")
+    x, y = fetch_openml('mnist_784', version=1, return_X_y=True)
+    x = (x / 255).astype('float32')
 
-    dnn = DeepNeuralNetwork([784,512, 256, 128, 64, 10])
-    res_foward = dnn.feed_forward(mnist.values[0][1:])
-    back_proop = dnn.back_propagation(res_foward, vectorize(mnist.values[0][1]))
-    print(res_foward)
+    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.15, random_state=42)
+
+    dnn = DeepNeuralNetwork([784, 512, 256, 128, 64, 10])
+    dnn.train(x_train, y_train, x_val, y_val)
+
