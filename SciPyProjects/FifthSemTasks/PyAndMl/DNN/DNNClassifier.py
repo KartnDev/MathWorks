@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Callable
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
@@ -29,33 +30,37 @@ def vector_from_val(y: int):
 
 
 class DeepNeuralNetwork:
-    def __init__(self, topology: [int], epochs: int = 1, learn_rate: float = 0.001):
+    def __init__(self, topology: [(int, Callable)], epochs: int = 1, learn_rate: float = 0.001):
         self.learn_rate = learn_rate
         self.epochs = epochs
-        self.topology = topology
+        self.layers_size = [i[0] for i in topology]
+        self.layers_activations = [i[1] for i in topology]
         self.weights = {}
         for i in range(0, len(topology) - 1):
-            self.weights[f'W{i}'] = np.random.randn(topology[i + 1], topology[i]) * np.sqrt(1. / topology[i + 1])
+            self.weights[f'W{i}'] = np.random.randn(self.layers_size[i + 1], self.layers_size[i]) \
+                                    * np.sqrt(1. / self.layers_size[i + 1])
 
     def feed_forward(self, x_vector: np.array):
         params = {'A0': x_vector}
 
-        for i in range(1, len(self.topology)):
+        for i in range(1, len(self.layers_size)):
             params[f'Z{i}'] = np.dot(self.weights[f'W{i - 1}'], params[f'A{i - 1}'])
-            params[f'A{i}'] = sigmoid(params[f'Z{i}'])
+            params[f'A{i}'] = self.layers_activations[i - 1](params[f'Z{i}'])
 
         return params
 
     def back_propagation(self, params: dict, real_y_val: np.array):
         change_w = {}
-        len_last = len(self.topology) - 1
+        len_last = len(self.layers_size) - 1
         output = params[f'A{len_last}']
 
-        error = 2 * (output - real_y_val) / self.topology[-1] * soft_max(params[f'Z{len_last}'], derivative=True)
+        error = 2 * (output - real_y_val) / self.layers_size[-1] * self.layers_activations[-1](params[f'Z{len_last}'],
+                                                                                               derivative=True)
         change_w[f'W{len_last}'] = np.outer(error, params[f'A{len_last - 1}'])
 
-        for i in reversed(range(2, len(self.topology))):
-            error = np.dot(self.weights[f'W{i - 1}'].T, error) * sigmoid(params[f'Z{i - 1}'], derivative=True)
+        for i in reversed(range(2, len(self.layers_size))):
+            error = np.dot(self.weights[f'W{i - 1}'].T, error) * self.layers_activations[i - 2](params[f'Z{i - 1}'],
+                                                                                                derivative=True)
             change_w[f'W{i - 1}'] = np.outer(error, params[f'A{i - 2}'])
 
         return change_w
@@ -68,7 +73,7 @@ class DeepNeuralNetwork:
         predictions = []
 
         for x, y in zip(x_val, y_val):
-            len_last = len(self.topology) - 1
+            len_last = len(self.layers_size) - 1
             output = self.feed_forward(x)[f'A{len_last}']
             pred = np.argmax(output)
             predictions.append(pred == y)
@@ -77,7 +82,7 @@ class DeepNeuralNetwork:
 
     def train(self, x_train, y_train, x_val, y_val):
         start_time = time.time()
-        len_last = len(self.topology) - 1
+        len_last = len(self.layers_size) - 1
         for iteration in range(self.epochs):
             for x, y in zip(x_train, y_train):
                 output = self.feed_forward(x)
@@ -107,7 +112,9 @@ if __name__ == '__main__':
     x_train, y_train = x_y_split_data_frame(train)
     x_val, y_val = x_y_split_data_frame(test)
 
-    dnn = DeepNeuralNetwork([784, 512, 256, 128, 32, 64, 10], epochs=20)
+    dnn = DeepNeuralNetwork([(784, sigmoid),
+                             (128, relu),
+                             (10, soft_max)],
+                            epochs=10, learn_rate=0.1)
 
     dnn.train(x_train, y_train, x_val, y_val)
-
