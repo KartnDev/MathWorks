@@ -23,6 +23,13 @@ def sigmoid(x: np.array, derivative: bool = False):
     return 1 / (1 + np.exp(-x))
 
 
+def relu(x: np.array, derivative: bool = False):
+    if not derivative:
+        return np.maximum(0, x)
+    else:
+        return np.where(x <= 0, 0, 1)
+
+
 def vector_from_val(y: int):
     res = np.zeros(10)
     res[int(y)] = 1.0
