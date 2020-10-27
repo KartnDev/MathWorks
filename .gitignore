@@ -1,4 +1,8 @@
 
 *.csv
+<<<<<<< HEAD
+**SciPyProjects/FifthSemTasks/venv/
+=======
 SciPyProjects/FifthSemTasks/AuroHydroDynamics/StreamFlowOverCircle.ipynb
 **SciPyProjects/FifthSemTasks/venvNew
+>>>>>>> 39edad17d01507c6ce794ec61f83827eb4505322
