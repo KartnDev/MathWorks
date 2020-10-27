@@ -29,7 +29,7 @@ def full_circle_shift_clockwise(matrix_array: np.array, index_of_circle: int):
 
 def get_matrix_shift(matrix_array: np.array, shift_times: int = 1):
     result = matrix_array.copy()
-    print(np.min(matrix_array.shape) / 2)
+    print(int(np.min(matrix_array.shape) / 2))
 
     for _ in range(0, shift_times):
         for shift_index in range(0, int(np.min(matrix_array.shape) / 2)):
@@ -39,7 +39,7 @@ def get_matrix_shift(matrix_array: np.array, shift_times: int = 1):
 
 
 if __name__ == '__main__':
-    matrix = np.arange(0, 8 * 10).reshape(8, 10)
+    matrix = np.arange(0, 7 * 10).reshape(7, 10)
     print(matrix)
     print(get_matrix_shift(matrix))
 
