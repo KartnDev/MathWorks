@@ -4,30 +4,13 @@ from typing import Callable
 
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
+from joblib import parallel_backend
 
 import numpy as np
 import pandas as pd
-from numba import jit, prange
+from numba import njit, prange
 
-
-def soft_max(x: np.array, derivative: bool = False):
-    exps = np.exp(x - x.max())
-    if derivative:
-        return exps / np.sum(exps, axis=0) * (1 - exps / np.sum(exps, axis=0))
-    return exps / np.sum(exps, axis=0)
-
-
-def sigmoid(x: np.array, derivative: bool = False):
-    if derivative:
-        return (np.exp(-x)) / ((np.exp(-x) + 1) ** 2)
-    return 1 / (1 + np.exp(-x))
-
-
-def relu(x: np.array, derivative: bool = False):
-    if not derivative:
-        return np.maximum(0, x)
-    else:
-        return np.where(x <= 0, 0, 1)
+from PyAndMl.MathUtils.ActivationFunctions import *
 
 
 def vector_from_val(y: int):
@@ -72,14 +55,14 @@ class DeepNeuralNetwork:
 
         return change_w
 
-    def update_network_parameters(self, changes_to_w):
+    def update_network_parameters(self, changes_to_w: dict):
         for key, value in changes_to_w.items():
             self.weights[key[0] + str(int(key[1]) - 1)] -= self.learn_rate * value
 
-    def compute_accuracy(self, x_val, y_val):
+    def compute_accuracy(self, x_values: np.array, y_values: np.array):
         predictions = []
 
-        for x, y in zip(x_val, y_val):
+        for x, y in zip(x_values, y_values):
             len_last = len(self.layers_size) - 1
             output = self.feed_forward(x)[f'A{len_last}']
             pred = np.argmax(output)
@@ -87,16 +70,16 @@ class DeepNeuralNetwork:
 
         return np.mean(predictions)
 
-    def train(self, x_train, y_train, x_val, y_val):
+
+    def train(self, x_train_dataset: np.array, y_train_labels: np.array, x_values: np.array, y_values: np.array):
         start_time = time.time()
-        len_last = len(self.layers_size) - 1
         for iteration in range(self.epochs):
-            for x, y in zip(x_train, y_train):
-                output = self.feed_forward(x)
-                changes_to_w = self.back_propagation(output, vector_from_val(y))
+            for i in range(len(x_train_dataset)):
+                output = self.feed_forward(x_train_dataset[i])
+                changes_to_w = self.back_propagation(output, vector_from_val(y_train_labels[i]))
                 self.update_network_parameters(changes_to_w)
 
-            accuracy = self.compute_accuracy(x_val, y_val)
+            accuracy = self.compute_accuracy(x_values, y_values)
             print('Epoch: {0}, Time Spent: {1:.2f}s, Accuracy: {2:.2f}%'.format(
                 iteration + 1, time.time() - start_time, accuracy * 100
             ))
@@ -105,7 +88,7 @@ class DeepNeuralNetwork:
         return self.feed_forward(x_value).max
 
 
-def x_y_split_data_frame(data_frame, random_state: bool = False):
+def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
     x, y = data_frame.iloc[:, 1:].values.astype('float64'), data_frame.iloc[:, 0:1].values
     if random_state:
         x += np.random.normal(0, 1, x.shape)
