@@ -14,12 +14,20 @@ def vector_from_val(y: int):
     return res
 
 
+def array_vectors_from_val(y_dataset_labels: np.array):
+    result = []
+    for item in y_dataset_labels:
+        result.append(vector_from_val(item))
+    return np.array(result)
+
+
 class DeepNeuralNetwork:
     def __init__(self, topology: [(int, Callable)], epochs: int = 1, learn_rate: float = 0.001):
         self.learn_rate = learn_rate
         self.epochs = epochs
         self.layers_size = [i[0] for i in topology]
         self.layers_activations = [i[1] for i in topology]
+        self.len_last = len(self.layers_size) - 1
         self.weights = {}
         for i in range(0, len(topology) - 1):
             self.weights[f'W{i}'] = np.random.randn(self.layers_size[i + 1], self.layers_size[i]) \
@@ -36,7 +44,7 @@ class DeepNeuralNetwork:
 
     def back_propagation(self, params: dict, real_y_val: np.array):
         change_w = {}
-        len_last = len(self.layers_size) - 1
+        len_last = self.len_last
         output = params[f'A{len_last}']
 
         error = 2 * (output - real_y_val) / self.layers_size[-1] * self.layers_activations[-1](params[f'Z{len_last}'],
@@ -58,8 +66,7 @@ class DeepNeuralNetwork:
         predictions = []
 
         for x, y in zip(x_values, y_values):
-            len_last = len(self.layers_size) - 1
-            output = self.feed_forward(x)[f'A{len_last}']
+            output = self.feed_forward(x)[f'A{self.len_last}']
             pred = np.argmax(output)
             predictions.append(pred == y)
 
@@ -73,21 +80,21 @@ class DeepNeuralNetwork:
 
     def train(self, x_train_dataset: np.array, y_train_labels: np.array, x_values: np.array, y_values: np.array):
         start_time = time.time()
-        outputs = np.array([])
+
         for iteration in range(self.epochs):
-            for index_dataset in range(len(x_train_dataset)):
-                output = self.feed_forward(x_train_dataset[index_dataset])
-                np.append(outputs, output)
-                changes_to_w = self.back_propagation(output, vector_from_val(y_train_labels[index_dataset]))
+            loss = 0
+            for x, y in zip(x_train_dataset, y_train_labels):
+                output = self.feed_forward(x)
+                changes_to_w = self.back_propagation(output, y)
                 self.update_network_parameters(changes_to_w)
 
-            accuracy = self.compute_accuracy(x_values, to_categorical(y_values))
+                loss += self.cross_entropy(output[f'A{self.len_last}'], y)
 
-            loss = self.cross_entropy(outputs, y_train_labels)
+            accuracy = self.compute_accuracy(x_values, y_values)
+            loss /= len(x_train_dataset)
 
-            print('Epoch: {0}, Time Spent: {1:.2f}s, Loss: % Accuracy: {2:.2f}%'.format(
-                iteration + 1, time.time() - start_time, loss, accuracy * 100
-            ))
+            print(f'Epoch: {iteration + 1}, Time Spent: {time.time() - start_time},'
+                  f' Loss: {loss} Accuracy: {accuracy * 100}')
 
     def predict(self, x_value: np.array):
         len_last = len(self.layers_size) - 1
@@ -98,7 +105,10 @@ def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
     x, y = data_frame.iloc[:, 1:].values.astype('float64'), data_frame.iloc[:, 0:1].values
     if random_state:
         x += np.random.normal(0, 1, x.shape)
-    return x / 255, y.reshape(len(y))
+
+    y = array_vectors_from_val(y.reshape(len(y)))
+
+    return x / 255, y
 
 
 if __name__ == '__main__':
@@ -116,5 +126,4 @@ if __name__ == '__main__':
     dnn.train(x_train, y_train, x_val, y_val)
 
     for i in range(len(x_val)):
-        print(f'Real image type is "{y_val[i]}", DeepNeuralNetwork predict "{dnn.predict(x_val[i])}"')
-
+        print(f'Real image type is "{np.argmax(y_val[i])}", DeepNeuralNetwork predict "{dnn.predict(x_val[i])}"')
