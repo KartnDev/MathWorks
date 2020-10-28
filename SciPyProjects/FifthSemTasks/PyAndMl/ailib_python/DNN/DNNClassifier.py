@@ -1,16 +1,11 @@
-import os
 import time
 from typing import Callable
 
-from sklearn.datasets import fetch_openml
-from sklearn.model_selection import train_test_split
-from joblib import parallel_backend
+from keras.utils import to_categorical
 
-import numpy as np
 import pandas as pd
-from numba import njit, prange
 
-from PyAndMl.MathUtils.ActivationFunctions import *
+from PyAndMl.ailib_python.MathUtils.ActivationFunctions import *
 
 
 def vector_from_val(y: int):
@@ -70,20 +65,31 @@ class DeepNeuralNetwork:
 
         return np.mean(predictions)
 
+    def cross_entropy(self, inputs, labels):
+        out_num = labels.shape[0]
+        p = np.sum(labels.reshape(1, out_num) * inputs)
+        loss = -np.log(p)
+        return loss
+
     def train(self, x_train_dataset: np.array, y_train_labels: np.array, x_values: np.array, y_values: np.array):
         start_time = time.time()
+        outputs = np.array([])
         for iteration in range(self.epochs):
-            for i in range(len(x_train_dataset)):
-                output = self.feed_forward(x_train_dataset[i])
-                changes_to_w = self.back_propagation(output, vector_from_val(y_train_labels[i]))
+            for index_dataset in range(len(x_train_dataset)):
+                output = self.feed_forward(x_train_dataset[index_dataset])
+                np.append(outputs, output)
+                changes_to_w = self.back_propagation(output, vector_from_val(y_train_labels[index_dataset]))
                 self.update_network_parameters(changes_to_w)
 
-            accuracy = self.compute_accuracy(x_values, y_values)
-            print('Epoch: {0}, Time Spent: {1:.2f}s, Accuracy: {2:.2f}%'.format(
-                iteration + 1, time.time() - start_time, accuracy * 100
+            accuracy = self.compute_accuracy(x_values, to_categorical(y_values))
+
+            loss = self.cross_entropy(outputs, y_train_labels)
+
+            print('Epoch: {0}, Time Spent: {1:.2f}s, Loss: % Accuracy: {2:.2f}%'.format(
+                iteration + 1, time.time() - start_time, loss, accuracy * 100
             ))
 
-    def predict(self, x_value: np.array) -> np.ndarray[int]:
+    def predict(self, x_value: np.array):
         len_last = len(self.layers_size) - 1
         return np.argmax(self.feed_forward(x_value)[f'A{len_last}'])
 
@@ -96,17 +102,16 @@ def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
 
 
 if __name__ == '__main__':
-    train = pd.read_csv('..\\Resources\\mnist_train.csv')
-    test = pd.read_csv('..\\Resources\\mnist_test.csv')
+    train = pd.read_csv('../Resources/mnist_train.csv')
+    test = pd.read_csv('../Resources/mnist_test.csv')
 
     x_train, y_train = x_y_split_data_frame(train)
     x_val, y_val = x_y_split_data_frame(test)
 
     dnn = DeepNeuralNetwork([(784, sigmoid),
-                             (256, sigmoid),
-                             (32, relu),
+                             (256, relu),
                              (10, soft_max)],
-                            epochs=5, learn_rate=0.1)
+                            epochs=10, learn_rate=0.05)
 
     dnn.train(x_train, y_train, x_val, y_val)
 
