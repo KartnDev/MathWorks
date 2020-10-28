@@ -15,13 +15,13 @@ def full_circle_shift_clockwise(matrix_array: np.array, index_of_circle: int):
 
     # shift last column
     for i in range(index_of_circle + 1, matrix_array.shape[0] - index_of_circle):
-        matrix_array[i, matrix_array.shape[1] - index_of_circle - 1] = not_shifted[
-            i - 1, matrix_array.shape[1] - index_of_circle - 1]
+        matrix_array[i, matrix_array.shape[1] - index_of_circle - 1] \
+            = not_shifted[i - 1, matrix_array.shape[1] - index_of_circle - 1]
 
     # shift last row
     for i in reversed(range(index_of_circle, matrix_array.shape[1] - index_of_circle - 1)):
-        matrix_array[matrix_array.shape[0] - index_of_circle - 1, i] = not_shifted[
-            matrix_array.shape[0] - index_of_circle - 1, i + 1]
+        matrix_array[matrix_array.shape[0] - index_of_circle - 1, i] \
+            = not_shifted[matrix_array.shape[0] - index_of_circle - 1, i + 1]
 
     for i in reversed(range(index_of_circle + 1, matrix_array.shape[0] - 1 - index_of_circle)):
         matrix_array[i, index_of_circle] = not_shifted[i + 1, index_of_circle]

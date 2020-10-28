@@ -70,7 +70,6 @@ class DeepNeuralNetwork:
 
         return np.mean(predictions)
 
-
     def train(self, x_train_dataset: np.array, y_train_labels: np.array, x_values: np.array, y_values: np.array):
         start_time = time.time()
         for iteration in range(self.epochs):
@@ -84,8 +83,9 @@ class DeepNeuralNetwork:
                 iteration + 1, time.time() - start_time, accuracy * 100
             ))
 
-    def predict(self, x_value: np.array) -> int:
-        return self.feed_forward(x_value).max
+    def predict(self, x_value: np.array) -> np.ndarray[int]:
+        len_last = len(self.layers_size) - 1
+        return np.argmax(self.feed_forward(x_value)[f'A{len_last}'])
 
 
 def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
@@ -103,8 +103,13 @@ if __name__ == '__main__':
     x_val, y_val = x_y_split_data_frame(test)
 
     dnn = DeepNeuralNetwork([(784, sigmoid),
-                             (128, relu),
+                             (256, sigmoid),
+                             (32, relu),
                              (10, soft_max)],
-                            epochs=10, learn_rate=0.1)
+                            epochs=5, learn_rate=0.1)
 
     dnn.train(x_train, y_train, x_val, y_val)
+
+    for i in range(len(x_val)):
+        print(f'Real image type is "{y_val[i]}", DeepNeuralNetwork predict "{dnn.predict(x_val[i])}"')
+
