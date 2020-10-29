@@ -1,11 +1,13 @@
 import time
 from typing import Callable
 
-from keras.utils import to_categorical
-
+import numpy
 import pandas as pd
 
 from PyAndMl.ailib_python.MathUtils.ActivationFunctions import *
+import cupy as np
+
+
 
 
 def vector_from_val(y: int):
@@ -68,9 +70,9 @@ class DeepNeuralNetwork:
         for x, y in zip(x_values, y_values):
             output = self.feed_forward(x)[f'A{self.len_last}']
             pred = np.argmax(output)
-            predictions.append(pred == y)
+            predictions.append(pred == np.argmax(y))
 
-        return np.mean(predictions)
+        return np.mean(np.array(predictions))
 
     def cross_entropy(self, inputs, labels):
         out_num = labels.shape[0]
@@ -94,7 +96,7 @@ class DeepNeuralNetwork:
             loss /= len(x_train_dataset)
 
             print(f'Epoch: {iteration + 1}, Time Spent: {time.time() - start_time},'
-                  f' Loss: {loss} Accuracy: {accuracy * 100}')
+                  f' Loss: {loss} Accuracy: {numpy.round(accuracy * 100, 2)}')
 
     def predict(self, x_value: np.array):
         len_last = len(self.layers_size) - 1
@@ -108,7 +110,7 @@ def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
 
     y = array_vectors_from_val(y.reshape(len(y)))
 
-    return x / 255, y
+    return np.asarray(x / 255), np.asarray(y)
 
 
 if __name__ == '__main__':
@@ -119,11 +121,16 @@ if __name__ == '__main__':
     x_val, y_val = x_y_split_data_frame(test)
 
     dnn = DeepNeuralNetwork([(784, sigmoid),
-                             (256, relu),
+                             (512, relu),
                              (10, soft_max)],
                             epochs=10, learn_rate=0.05)
 
     dnn.train(x_train, y_train, x_val, y_val)
-
+    curr = 0
     for i in range(len(x_val)):
-        print(f'Real image type is "{np.argmax(y_val[i])}", DeepNeuralNetwork predict "{dnn.predict(x_val[i])}"')
+        real = np.argmax(y_val[i])
+        pred = dnn.predict(x_val[i])
+        curr += 1 if real == pred else 0
+        print(f'Real image type is "{real}", DeepNeuralNetwork predict "{pred}"')
+
+    print(curr / len(x_val))
