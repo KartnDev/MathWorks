@@ -8,8 +8,6 @@ from PyAndMl.ailib_python.MathUtils.ActivationFunctions import *
 import cupy as np
 
 
-
-
 def vector_from_val(y: int):
     res = np.zeros(10)
     res[int(y)] = 1.0
@@ -75,9 +73,10 @@ class DeepNeuralNetwork:
         return np.mean(np.array(predictions))
 
     def cross_entropy(self, inputs, labels):
+        eps = 1e-10
         out_num = labels.shape[0]
         p = np.sum(labels.reshape(1, out_num) * inputs)
-        loss = -np.log(p)
+        loss = -np.log(p + eps)
         return loss
 
     def train(self, x_train_dataset: np.array, y_train_labels: np.array, x_values: np.array, y_values: np.array):
@@ -89,7 +88,6 @@ class DeepNeuralNetwork:
                 output = self.feed_forward(x)
                 changes_to_w = self.back_propagation(output, y)
                 self.update_network_parameters(changes_to_w)
-
                 loss += self.cross_entropy(output[f'A{self.len_last}'], y)
 
             accuracy = self.compute_accuracy(x_values, y_values)
@@ -99,8 +97,7 @@ class DeepNeuralNetwork:
                   f' Loss: {loss} Accuracy: {numpy.round(accuracy * 100, 2)}')
 
     def predict(self, x_value: np.array):
-        len_last = len(self.layers_size) - 1
-        return np.argmax(self.feed_forward(x_value)[f'A{len_last}'])
+        return np.argmax(self.feed_forward(x_value)[f'A{self.len_last}'])
 
 
 def x_y_split_data_frame(data_frame: pd.DataFrame, random_state: bool = False):
@@ -121,9 +118,9 @@ if __name__ == '__main__':
     x_val, y_val = x_y_split_data_frame(test)
 
     dnn = DeepNeuralNetwork([(784, sigmoid),
-                             (512, relu),
+                             (256, relu),
                              (10, soft_max)],
-                            epochs=10, learn_rate=0.05)
+                            epochs=10, learn_rate=0.1)
 
     dnn.train(x_train, y_train, x_val, y_val)
     curr = 0
