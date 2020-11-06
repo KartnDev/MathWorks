@@ -160,15 +160,15 @@ if __name__ == '__main__':
 
     # Setup boundary conditions
     for i in range(N):
-        if (i < 2 * N0):  # bottom
+        if i < 2 * N0:  # bottom
             BCT[i] = 1
             BCV[i] = 0.
 
-        elif (i < 3 * N0):  # right
+        elif i < 3 * N0:  # right
             BCT[i] = 0
             BCV[i] = 0
 
-        elif (i < 4 * N0):  # top
+        elif i < 4 * N0:  # top
             BCT[i] = 1
             BCV[i] = 0
 
@@ -233,7 +233,7 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=(10, 2.5), dpi=300)
     a = plt.gca()
-    plt.streamplot(X, Y, u, v, density=0.6)
+    plt.streamplot(X, Y, u, v, density=1)
     c1 = a.add_patch(plt.Rectangle([0.90, 0], 0.2, 0.17, color='grey'))
     Nx = 4 * N0
     Ny = 2 * N0
@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=(10, 5), dpi=300)
     a = plt.gca()
-    plt.streamplot(XX, YY, uu, vv, density=0.6)
+    plt.streamplot(XX, YY, uu, vv, density=1)
 
     c1 = a.add_patch(plt.Circle((Lx / 2, Ly / 2), R, facecolor="Grey"))
     plt.show()
