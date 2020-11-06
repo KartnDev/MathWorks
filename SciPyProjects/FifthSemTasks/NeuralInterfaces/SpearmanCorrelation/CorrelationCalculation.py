@@ -2,7 +2,6 @@ import time
 
 import numpy as np
 from scipy.stats import spearmanr, rankdata
-import numba
 
 from NeuralInterfaces.dataSignal2 import read_signals
 
@@ -16,7 +15,9 @@ def spearman(x_series: list, y_series: list):
 
 
 def spearman_jit(x_ranks, y_ranks, n):
-    sum = np.linalg.norm(x_ranks - y_ranks)**2
+    sum = 0.0
+    for i in range(n):
+        sum += (x_ranks[i] - y_ranks[i]) ** 2
 
     return 1 - (6 * sum) / (n ** 3 - n)
 
@@ -33,12 +34,12 @@ def matrix_correlation(cv):
 
 
 if __name__ == '__main__':
-    x_open, y_open, z_open = read_signals("..\\Resource\\OpenEyes.asc")
-    x_close, y_close, z_close = read_signals("..\\Resource\\ClosedEyes.asc")
-    english = np.random.randn(1000000) * 100
-    math = np.random.randn(1000000) * 100
+    x = np.array([i/1000 for i in range(256 * 256)])
+    y = np.array([(-np.sin(i) * i + i) for i in range(256 * 256)])
 
-    last_len = len(x_close)
+    sum = np.sum((x - x.mean()) * (y - y.mean()))
 
-    print(matrix_correlation([x_open[:last_len], y_open[:last_len], z_open[:last_len], x_close, y_close, z_close]))
+    error_x = np.sum((x - x.mean()) * (x - x.mean()))
+    error_y = np.sum((y - y.mean()) * (y - y.mean()))
 
+    print(sum / np.sqrt(error_x * error_y))
