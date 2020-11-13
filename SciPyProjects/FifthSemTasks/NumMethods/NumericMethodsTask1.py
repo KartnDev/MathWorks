@@ -57,6 +57,8 @@ def init_render(foo, first_bound: float, second_bound: float, x_zero: int, y_zer
     plt.show()
 
 
+
+
 if __name__ == "__main__":
     a = 0.0
     b = 1.0
