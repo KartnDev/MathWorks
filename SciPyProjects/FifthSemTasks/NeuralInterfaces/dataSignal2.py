@@ -11,24 +11,20 @@ def function_line(x):
     return 2 * x + 3
 
 
-def read_signals(path: str):
-    first_signal = []
-    second_signal = []
-    third_signal = []
+def read_signals(path: str, index, last):
+    res = []
+
     with open(path) as file:
-        file_lines = file.read().split('\n')[4:]
+        file_lines = file.read().split('\n')[index:last]
+
+        for i in range(len(file_lines[0].split(' '))):
+            res.append([])
+
         for line in file_lines:
             values = line.split(' ')
-            if len(values) == 3:
-                first_signal.append(int(values[0]))
-                second_signal.append(int(values[1]))
-                third_signal.append(int(values[2]))
-
-    first_signal = np.array(first_signal)
-    second_signal = np.array(second_signal)
-    third_signal = np.array(third_signal)
-
-    return first_signal, second_signal, third_signal
+            for i, word in enumerate(values):
+                res[i].append(float(word))
+    return res
 
 
 def get_interval_array_slice(array: Iterable, lower_bound: int, upper_bound: int):
