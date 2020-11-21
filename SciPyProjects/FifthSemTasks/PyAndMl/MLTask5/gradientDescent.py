@@ -20,9 +20,9 @@ def gradientDescent(X, y, theta, alpha, num_iters):
         # стоимостную функцию
 
         for k in range(0, len(theta)):
-            sum_pred = 0
-            for i in range(0, m):
-                sum_pred += np.sum((np.dot(X[i], theta) - y[i]) * np.power(X[i], k))
+            sum_pred = np.sum(np.dot(X[0], theta) - y[0])
+            for j in range(1, m):
+                sum_pred += np.sum((np.dot(X[j], theta) - y[j]) * X[j])
 
             theta[k] = theta[k] - alpha / m * sum_pred
 

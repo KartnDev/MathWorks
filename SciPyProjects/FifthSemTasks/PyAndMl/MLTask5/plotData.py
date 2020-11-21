@@ -19,5 +19,6 @@ def plotData(data):
     plt.xlabel('Population count, 10k count')
     plt.ylabel('income, 10k $')
     plt.grid()
+
     
     # ============================================================
