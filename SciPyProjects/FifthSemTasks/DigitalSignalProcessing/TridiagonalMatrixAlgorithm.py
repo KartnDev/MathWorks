@@ -1,11 +1,13 @@
+from typing import Iterable
+
 import numpy as np
 
 
 # Tri Diagonal Matrix Algorithm(a.k.a Thomas algorithm) solver
-def tdma_solver(a, b, c, d):
+def thomas_solver(under_main_diag: Iterable, main_diag: Iterable, upper_main_diag: Iterable, vector: Iterable):
 
-    nf = len(d)  # number of equations
-    ac, bc, cc, dc = map(np.array, (a, b, c, d))  # copy arrays
+    nf = len(vector)  # number of equations
+    ac, bc, cc, dc = map(np.array, (under_main_diag, main_diag, upper_main_diag, vector))  # copy arrays
     for it in range(1, nf):
         mc = ac[it - 1] / bc[it - 1]
         bc[it] = bc[it] - mc * cc[it - 1]
@@ -31,7 +33,7 @@ if __name__ == '__main__':
     c = np.array([2., 4., 5.])
     d = np.array([3, 4, 5, 6.])
 
-    print(tdma_solver(a, b, c, d))
+    print(thomas_solver(a, b, c, d))
 
     # compare against numpy linear algebra library
     print(np.linalg.solve(A, d))

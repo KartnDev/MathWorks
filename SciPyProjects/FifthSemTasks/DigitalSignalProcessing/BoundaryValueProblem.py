@@ -1,8 +1,9 @@
 import numpy
 import matplotlib.pyplot as plt
+from DigitalSignalProcessing.TridiagonalMatrixAlgorithm import thomas_solver
 
 
-def finite_difference(u_init, v_init, w_init, t_times, a_diagonal, solutions_b):
+def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: float, b_right_boundary: float):
     """Implements the shooting method to solve linear second order BVPs
 
     Compute finite difference solution to the BVP
@@ -16,15 +17,15 @@ def finite_difference(u_init, v_init, w_init, t_times, a_diagonal, solutions_b):
     generated for each of them.
 
     USAGE:
-        x = finite_difference(u, v, w, t, a, b)
+        x = fd(u, v, w, t, a, b)
 
     INPUT:
-        u_init, v_init, w_init - arrays containing u(t), v(t), and w(t) values.  May be
+        u_init, v_init, w-init - arrays containing u(t), v(t), and w(t) values.  May be
                 specified as Python lists, NumPy arrays, or scalars.  In
                 each case they are converted to NumPy arrays.
-        t_times - array of n time values to determine x at
-        a_diagonal - solution value at the left boundary: a = x(t[0])
-        solutions_b - solution value at the right boundary: b = x(t[n-1])
+        times_stepping - array of n time values to determine x at
+        a - solution value at the left boundary: a = x(t[0])
+        b - solution value at the right boundary: b = x(t[n-1])
 
     OUTPUT:
         x     - array of solution function values corresponding to the
@@ -33,13 +34,13 @@ def finite_difference(u_init, v_init, w_init, t_times, a_diagonal, solutions_b):
 
     # Get the dimension of t and make sure that t is an n-element vector
 
-    if type(t_times) != numpy.ndarray:
-        if type(t_times) == list:
-            t_times = numpy.array(t_times)
+    if type(times_stepping) != numpy.ndarray:
+        if type(times_stepping) == list:
+            times_stepping = numpy.array(times_stepping)
         else:
-            t_times = numpy.array([float(t_times)])
+            times_stepping = numpy.array([float(times_stepping)])
 
-    n = len(t_times)
+    n = len(times_stepping)
 
     # Make sure that u, v, and w are either scalars or n-element vectors.
     # If they are scalars then we create vectors with the scalar value in
@@ -54,41 +55,32 @@ def finite_difference(u_init, v_init, w_init, t_times, a_diagonal, solutions_b):
     if type(w_init) == int or type(w_init) == float:
         w_init = numpy.array([float(w_init)] * n)
 
-    # Compute the step size.  It is assumed that all elements in t are
+    # Compute the stepsize.  It is assumed that all elements in t are
     # equally spaced.
 
-    h_steps = t_times[1] - t_times[0];
+    h = times_stepping[1] - times_stepping[0];
 
-    # Construct tri diagonal system; boundary conditions appear as first and
+    # Construct tridiagonal system; boundary conditions appear as first and
     # last equations in system.
 
-    a_diagonal = -(1.0 + w_init[1:n] * h_steps / 2.0)
-    a_diagonal[-1] = 0.0
+    under_diag = -(1.0 + w_init[1:n] * h / 2.0)
+    under_diag[-1] = 0.0
 
-    c_diagonal = -(1.0 - w_init[0:n - 1] * h_steps / 2.0)
-    c_diagonal[0] = 0.0
+    upper_diag = -(1.0 - w_init[0:n - 1] * h / 2.0)
+    upper_diag[0] = 0.0
 
-    D = 2.0 + h_steps * h_steps * v_init
-    D[0] = D[n - 1] = 1.0
+    vector = 2.0 + h * h * v_init
+    vector[0] = vector[n - 1] = 1.0
 
-    B = - h_steps * h_steps * u_init
-    B[0] = a_diagonal
-    B[n - 1] = solutions_b
+    main_diag = - h * h * u_init
+    main_diag[0] = a_left_boundary
+    main_diag[n - 1] = b_right_boundary
 
-    # Solve tri diagonal system Aka "Thomas method" / "Tri diagonal alg"
+    # Solve tridiagonal system
 
-    for i in range(1, n):
-        x_multiplied = a_diagonal[i - 1] / D[i - 1]
-        D[i] = D[i] - x_multiplied * c_diagonal[i - 1]
-        B[i] = B[i] - x_multiplied * B[i - 1]
+    x = thomas_solver(under_diag, vector, upper_diag, main_diag)
 
-    x_result = numpy.zeros(n)
-    x_result[n - 1] = B[n - 1] / D[n - 1]
-
-    for i in range(n - 2, -1, -1):
-        x_result[i] = (B[i] - c_diagonal[i] * x_result[i + 1]) / D[i]
-
-    return x_result
+    return x
 
 
 def boundary_problem_solve(x: any):
