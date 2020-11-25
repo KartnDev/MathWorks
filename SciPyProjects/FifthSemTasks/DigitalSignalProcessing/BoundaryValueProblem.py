@@ -1,5 +1,6 @@
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
+
 from DigitalSignalProcessing.TridiagonalMatrixAlgorithm import thomas_solver
 
 
@@ -34,11 +35,11 @@ def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: f
 
     # Get the dimension of t and make sure that t is an n-element vector
 
-    if type(times_stepping) != numpy.ndarray:
+    if type(times_stepping) != np.ndarray:
         if type(times_stepping) == list:
-            times_stepping = numpy.array(times_stepping)
+            times_stepping = np.array(times_stepping)
         else:
-            times_stepping = numpy.array([float(times_stepping)])
+            times_stepping = np.array([float(times_stepping)])
 
     n = len(times_stepping)
 
@@ -47,13 +48,13 @@ def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: f
     # each position.
 
     if type(u_init) == int or type(u_init) == float:
-        u_init = numpy.array([float(u_init)] * n)
+        u_init = np.array([float(u_init)] * n)
 
     if type(v_init) == int or type(v_init) == float:
-        v_init = numpy.array([float(v_init)] * n)
+        v_init = np.array([float(v_init)] * n)
 
     if type(w_init) == int or type(w_init) == float:
-        w_init = numpy.array([float(w_init)] * n)
+        w_init = np.array([float(w_init)] * n)
 
     # Compute the stepsize.  It is assumed that all elements in t are
     # equally spaced.
@@ -76,7 +77,7 @@ def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: f
     main_diag[0] = a_left_boundary
     main_diag[n - 1] = b_right_boundary
 
-    # Solve tridiagonal system
+    # Solve tri diagonal system
 
     x = thomas_solver(under_diag, vector, upper_diag, main_diag)
 
@@ -84,11 +85,11 @@ def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: f
 
 
 def boundary_problem_solve(x: any):
-    return (2 * x + 1) * numpy.exp(x)
+    return (2 * x + 1) * np.exp(x)
 
 
 def exact(t):
-    return numpy.exp(t) * (1 + 2 * t)
+    return np.exp(t) * (1 + 2 * t)
 
 
 if __name__ == "__main__":
@@ -101,16 +102,16 @@ if __name__ == "__main__":
     b = 0.5
     n1 = 64
     n2 = 128
-    t1 = numpy.linspace(a, b, n1)
-    t2 = numpy.linspace(a, b, n2)
+    t1 = np.linspace(a, b, n1)
+    t2 = np.linspace(a, b, n2)
 
     x1 = exact(t1)
     x2 = exact(t2)
 
     # Compute finite difference solutions
 
-    xfd1 = finite_difference(4 * numpy.exp(t1), 1, 0, t1, 1, 2 * numpy.exp(0.5))
-    xfd2 = finite_difference(4 * numpy.exp(t2), 1, 0, t2, 1, 2 * numpy.exp(0.5))
+    xfd1 = finite_difference(4 * np.exp(t1), 1, 0, t1, 1, 2 * np.exp(0.5))
+    xfd2 = finite_difference(4 * np.exp(t2), 1, 0, t2, 1, 2 * np.exp(0.5))
 
     func = boundary_problem_solve(t1)
 
