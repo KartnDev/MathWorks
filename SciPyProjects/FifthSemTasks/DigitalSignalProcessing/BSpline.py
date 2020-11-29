@@ -27,24 +27,17 @@ def b_spline_kernel(x_val: float, n: int):
 def build_basis_spline(x_vector: Iterable):
     res = np.zeros(x_vector.shape)
     for i in range(len(x_vector)):
-        res[i] = b_spline_kernel(x_vector[i], len(x_vector))
+        res[i] = b_spline_kernel(x_vector[i], 10)
 
     return res
 
 
-def func(x):
-    return np.sin(x) * np.sign(x)
-
-
 if __name__ == '__main__':
-    n = 10
-    a = 0
-    b = 10
-    h = (b - a) / n
-    X = np.arange(a, b + h, h)
-    f = func(X)
+    N = 10
+    h = 0.1
+    X = np.arange(0, (N / 2) + h, h)
 
-    result = build_basis_spline(f)
+    result = build_basis_spline(np.exp(X) * np.sin(X))
 
     x_neg = ((-1 * X)[::-1])
     X = np.concatenate((x_neg, X[1:]))

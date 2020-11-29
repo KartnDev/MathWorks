@@ -81,7 +81,7 @@ def func(x):
 
 
 if __name__ == '__main__':
-    n = 10
+    n = 25
     a = 0
     b = 10
     h = (b - a) / n

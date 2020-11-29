@@ -88,10 +88,6 @@ def boundary_problem_solve(x: any):
     return (2 * x + 1) * np.exp(x)
 
 
-def exact(t):
-    return np.exp(t) * (1 + 2 * t)
-
-
 if __name__ == "__main__":
     # Solves y'' = y + 4exp(x), y(0)=1, y(1/2) = 2exp(1/2) using both the
     # finite difference method
@@ -99,23 +95,20 @@ if __name__ == "__main__":
     # Set up interval.  We will solve the problem for both n=64 and n=128.
 
     a = 0.0
-    b = 0.5
+    b = 1.0
     n1 = 64
     n2 = 128
     t1 = np.linspace(a, b, n1)
     t2 = np.linspace(a, b, n2)
 
-    x1 = exact(t1)
-    x2 = exact(t2)
-
     # Compute finite difference solutions
 
-    xfd1 = finite_difference(4 * np.exp(t1), 1, 0, t1, 1, 2 * np.exp(0.5))
-    xfd2 = finite_difference(4 * np.exp(t2), 1, 0, t2, 1, 2 * np.exp(0.5))
+    xfd1 = finite_difference(2 * t1, 1, 0, t1, 0, -1)
+    xfd2 = finite_difference(2 * t2, 1, 0, t2, 0, -1)
 
     func = boundary_problem_solve(t1)
 
     plt.plot(t1, xfd1)
     plt.plot(t1, xfd2[::2])
-    plt.plot(t1, func)
+    #plt.plot(t1, func)
     plt.show()
