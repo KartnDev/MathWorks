@@ -104,14 +104,6 @@ def plot_map(curves, map, plot_domain=True, align='horizontal', **kwargs):
     axes_label = kwargs.pop('axis_label', True)
     func = kwargs.pop('func', 'f')
     var = kwargs.pop('var', 'z')
-    if axes_label:
-        label = '$\\mathrm{}({})$'
-        if ax:
-            ax.set_xlabel(label.format('{Re}', f'{func}\\left({var}\\right)'))
-            ax.set_ylabel(label.format('{Im}', f'{func}\\left({var}\\right)'))
-        if domain:
-            domain.set_xlabel(label.format('{Re}', var))
-            domain.set_ylabel(label.format('{Im}', var))
 
     # color mode
     if kwargs.pop('color_each', False) and isinstance(curves, tuple):
