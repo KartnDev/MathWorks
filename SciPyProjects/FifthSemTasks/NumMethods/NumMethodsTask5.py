@@ -1,5 +1,5 @@
-from typing import Callable, Iterable
-import matplotlib.pyplot as plt
+from typing import Iterable
+
 import numpy as np
 
 
@@ -22,13 +22,13 @@ def thomas_solver_templated(under_diag: Iterable, mid_diag: Iterable, upper_diag
     return Y
 
 
-def find_tri_diagonal_matrix(func_vector: Iterable, n_count: int):
+def find_tri_diagonal_matrix(func_vector: Iterable, h: float, n_count: int):
     under_diag = np.zeros(n_count + 1)
     mid_diag = np.zeros(n_count + 1)
     upper_diag = np.zeros(n_count + 1)
     rhs_vector = np.zeros(n_count + 1)
 
-    for inx in range(0, n_count):
+    for inx in range(0, n_count - 1):
         under_diag[inx] = 4
         mid_diag[inx] = 1
         upper_diag[inx] = 1
@@ -61,7 +61,7 @@ def phi_four(t: float):
 
 
 def build_spline(x: float, a_boundary: float, h_step: float, x_vector: Iterable, func_vector: Iterable):
-    under, mid, upper, rsh_vector = find_tri_diagonal_matrix(f, n)
+    under, mid, upper, rsh_vector = find_tri_diagonal_matrix(func_vector, h_step, n)
 
     M = thomas_solver_templated(under, mid, upper, rsh_vector)
 
@@ -76,28 +76,28 @@ def build_spline(x: float, a_boundary: float, h_step: float, x_vector: Iterable,
     return phi_phase_one + phi_phase_two + phi_phase_three + phi_phase_four
 
 
-def func(x):
-    return x ** (x * np.cos(x))
+def generate_spline(x, y):
+    h = (x[0] - x[-1]) / len(x)
+
+    return np.array([build_spline(x[i], 0, h, x, y) for i in range(0, len(x))])
 
 
-if __name__ == '__main__':
+import matplotlib.pyplot as plt
+import numpy as np
 
-    a = 0
-    b = 3
-    for n in [5, 10, 20]:
-        h = (b - a) / n
-        X = np.arange(a, b + h, h)
-        f = func(X)
+f = lambda x: x ** (x * np.cos(x))
 
-        SRes = []
+a = 0
+b = 3
+res = []
 
-        for i in range(0, n):
-            SRes.append(build_spline(X[i], 0, h, X, f))
+for n in [5, 10, 20]:
+    x = np.linspace(a, b, n)
+    y = f(x)
+    res.append(generate_spline(x, y))
 
-        SRes = np.array(SRes)
-
-        plt.plot(X[:n], SRes, linewidth=3)
-        plt.plot(X, f, 'o', linewidth=1)
-        xx = np.arange(a, b + h, 0.01)
-        plt.plot(xx, func(xx))
-        plt.show()
+xx = np.arange(a, b, 0.01)
+plt.plot(xx, f(xx), 'b--')
+for i, n in enumerate([5, 10, 20]):
+    plt.plot(np.linspace(a, b, n), res[i])
+plt.show()
