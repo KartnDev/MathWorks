@@ -8,7 +8,7 @@ def thomas_solver_templated(under_diag: Iterable, mid_diag: Iterable, upper_diag
     mid_diag[0] = mid_diag[0] / under_diag[0]
     rsh_vector[0] = rsh_vector[0] / under_diag[0]
 
-    for i in range(1, size):
+    for i in range(0, size - 1):
         v = mid_diag[i] / (-upper_diag[i] * mid_diag[i - 1] + under_diag[i])
         u = (rsh_vector[i] - upper_diag[i] * rsh_vector[i - 1]) / (-upper_diag[i] * mid_diag[i - 1] + under_diag[i])
 
@@ -69,9 +69,9 @@ def build_spline(x: float, a_boundary: float, h_step: float, x_vector: Iterable,
     t = (x - x_vector[index]) / h_step
 
     phi_phase_one = func_vector[index] * phi_one(t)
-    phi_phase_two = func_vector[index + 1] * phi_two(t)
+    phi_phase_two = func_vector[index] * phi_two(t)
     phi_phase_three = M[index] * h_step * h_step * phi_three(t)
-    phi_phase_four = M[index + 1] * h_step * h_step * phi_four(t)
+    phi_phase_four = M[index] * h_step * h_step * phi_four(t)
 
     return phi_phase_one + phi_phase_two + phi_phase_three + phi_phase_four
 
@@ -91,13 +91,14 @@ if __name__ == '__main__':
 
         SRes = []
 
-        for i in range(0, n):
+        for i in range(0, n + 1):
             SRes.append(build_spline(X[i], 0, h, X, f))
 
         SRes = np.array(SRes)
 
-        plt.plot(X[:n], SRes, linewidth=3)
+        plt.plot(X, SRes, linewidth=3)
         plt.plot(X, f, 'o', linewidth=1)
         xx = np.arange(a, b + h, 0.01)
+        plt.title("$ y = x^{x \cdot cosx} $ \t" + f"n_points: {n}")
         plt.plot(xx, func(xx))
         plt.show()
