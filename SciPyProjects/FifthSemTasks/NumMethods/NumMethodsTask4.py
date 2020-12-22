@@ -46,20 +46,22 @@ def tridiagonal_matrix_solver(lsh_matrix: np.ndarray, rsh_vector: Iterable):
     else:
         raise ValueError("Argument lsh_matrix wasn't tridiagonal")
 
+if __name__ == '__main__':
 
-A = np.array([
-    [1, 4, 0, 0, 0],
-    [1, 2, 3, 0, 0],
-    [0, 1, 2, 3, 0],
-    [0, 0, 1, 2, 3],
-    [0, 0, 0, 5, 2]
-])
 
-B = np.array([1, 2, 3, 4, 5])
-res_x = tridiagonal_matrix_solver(A, B)
+    A = np.array([
+        [1, 4, 0, 0, 0],
+        [1, 2, 3, 0, 0],
+        [0, 1, 2, 3, 0],
+        [0, 0, 1, 2, 3],
+        [0, 0, 0, 5, 2]
+    ])
 
-print('my solver,    X =', res_x)
-print('Numpy solver, X =', np.linalg.solve(A, B))
+    B = np.array([1, 2, 3, 4, 5])
+    res_x = tridiagonal_matrix_solver(A, B)
 
-print(all(np.isclose(res_x, np.linalg.solve(A, B))))
-print(all(np.isclose(A.dot(res_x), B)))
+    print('my solver,    X =', res_x)
+    print('Numpy solver, X =', np.linalg.solve(A, B))
+
+    print(all(np.isclose(res_x, np.linalg.solve(A, B))))
+    print(all(np.isclose(A.dot(res_x), B)))
