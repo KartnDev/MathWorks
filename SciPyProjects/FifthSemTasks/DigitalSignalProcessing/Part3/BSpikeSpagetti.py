@@ -65,9 +65,11 @@ class Spike(object):
             end_value = self._m_size / np.power(2, j)
             end_value = int(end_value)
             stored_values = []
+
             for m in range(end_value):
                 value = self._s_array[j + 1][int(m / 2)] + np.power(-1, m) * self._d_array[j][int(m / 2)]
                 stored_values.append(value / np.sqrt(2))
+
             self._s_result_array = [stored_values] + self._s_result_array
         return self._s_result_array[0]
 
