@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from DigitalSignalProcessing.TridiagonalMatrixAlgorithm import thomas_solver
+from DigitalSignalProcessing.Part2.TridiagonalMatrixAlgorithm import thomas_solver
 
 
 def finite_difference(u_init, v_init, w_init, times_stepping, a_left_boundary: float, b_right_boundary: float):

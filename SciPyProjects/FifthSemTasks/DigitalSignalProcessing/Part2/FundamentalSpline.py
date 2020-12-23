@@ -1,8 +1,6 @@
-from typing import Iterable
-
 import numpy as np
 import matplotlib.pyplot as plt
-from DigitalSignalProcessing.BSpline import b_spline_kernel
+from DigitalSignalProcessing.Part2.BSpline import b_spline_kernel
 
 
 def fundamental(x_val: float, p_count: int, n_count: int):
