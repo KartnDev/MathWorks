@@ -75,24 +75,24 @@ def get_final_sum(h_array, j_length, m_size, s_array, d_array):
 if __name__ == '__main__':
     n_const = 15
     n_value = 2 * n_const
-    h_array = np.array([-0.0001499638, 0.0002535612, 0.0015402457, -0.0029411108, -0.0071637819, 0.0165520664, 0.0199178043,
-                        -0.0649972628, -0.0368000736, 0.2980923235, 0.5475054294, 0.3097068490, -0.0438660508, -0.0746522389,
-                        0.0291958795, 0.0231107770, -0.0139738879, -0.0064800900, 0.0047830014, 0.0017206547, -0.0011758222,
-                        -0.0004512270, 0.0002137298, 0.00009937776, -0.0000292321, -0.0000150720, 0.0000026408, 0.0000014593,
-                        -0.0000001184, -0.0000000673])
+    h_vector_const = np.array([-0.0001499638, 0.0002535612, 0.0015402457, -0.0029411108, -0.0071637819, 0.0165520664, 0.0199178043,
+                               -0.0649972628, -0.0368000736, 0.2980923235, 0.5475054294, 0.3097068490, -0.0438660508, -0.0746522389,
+                               0.0291958795, 0.0231107770, -0.0139738879, -0.0064800900, 0.0047830014, 0.0017206547, -0.0011758222,
+                               -0.0004512270, 0.0002137298, 0.00009937776, -0.0000292321, -0.0000150720, 0.0000026408, 0.0000014593,
+                               -0.0000001184, -0.0000000673])
 
-    h_array = h_array * np.sqrt(2)
-    j_length = 5
-    m_size = pow(2, j_length)
-    range_array = np.arange(m_size)
+    h_vector_const = h_vector_const * np.sqrt(2)
+    j_len = 5
+    m_sized = pow(2, j_len)
+    range_array = np.arange(m_sized)
     waveform_smooth = signal.sawtooth(2 * np.pi * 5 * range_array)
 
-    s_array, d_array = generate_s_d(waveform_smooth, j_length, m_size, h_array)
+    s_array_value, d_array_value = generate_s_d(waveform_smooth, j_len, m_sized, h_vector_const)
 
-    print(len(s_array[0]), len(s_array[1]), len(s_array[2]), len(s_array[3]), len(s_array[4]))
-    sum_first, sum_second = update_sum(waveform_smooth, j_length, m_size, s_array, d_array)
+    print(len(s_array_value[0]), len(s_array_value[1]), len(s_array_value[2]), len(s_array_value[3]), len(s_array_value[4]))
+    sum_first, sum_second = update_sum(waveform_smooth, j_len, m_sized, s_array_value, d_array_value)
 
-    result_spiked = get_final_sum(h_array, j_length, m_size, s_array, d_array)
+    result_spiked = get_final_sum(h_vector_const, j_len, m_sized, s_array_value, d_array_value)
     print(result_spiked[5])
 
     plt.plot(range_array, waveform_smooth)
