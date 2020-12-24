@@ -5,7 +5,7 @@ import numpy
 import pandas as pd
 
 from PyAndMl.ailib_python.MathUtils.ActivationFunctions import *
-import cupy as np
+import numpy as np
 
 
 def vector_from_val(y: int):

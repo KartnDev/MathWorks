@@ -2,7 +2,6 @@ import numpy as np
 import scipy as sc
 from scipy import signal
 import matplotlib.pyplot as plt
-import math
 
 
 def get_h(value, h_array):
@@ -48,9 +47,9 @@ def update_sum(waveform, j_length, m_size, s_array, d_array):
         end_value = m_size / np.power(2, j + 1)
         end_value = int(end_value)
         for m in range(end_value):
-            sum_first += math.pow(d_array[j][m], 2)
+            sum_first += np.power(d_array[j][m], 2)
     for m in range(m_size):
-        sum_second += math.pow(waveform[m], 2)
+        sum_second += np.power(waveform[m], 2)
     print(sum_first + np.power(s_array[j_length][0], 2))
     print(sum_second)
 
@@ -83,7 +82,7 @@ if __name__ == '__main__':
 
     h_vector_const = h_vector_const * np.sqrt(2)
     j_len = 5
-    m_sized = pow(2, j_len)
+    m_sized = np.power(2, j_len)
     range_array = np.arange(m_sized)
     waveform_smooth = signal.sawtooth(2 * np.pi * 5 * range_array)
 
