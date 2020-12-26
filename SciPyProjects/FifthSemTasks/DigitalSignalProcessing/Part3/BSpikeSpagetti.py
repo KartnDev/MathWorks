@@ -82,7 +82,6 @@ if __name__ == '__main__':
     spike = Spike(wave_smooth, j_len, m_size_value, True)
     spike_result = spike.get_spike_array
 
-    plt.plot(range_array, wave_smooth)
-    plt.show()
-    plt.plot(range_array, spike_result)
+    plt.plot(range_array, wave_smooth, color="red")
+    plt.plot(range_array, spike_result, "--")
     plt.show()
