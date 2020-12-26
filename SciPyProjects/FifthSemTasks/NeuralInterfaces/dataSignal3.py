@@ -59,7 +59,7 @@ def inf2(data, fig):
 
 
 def main():
-    sigFirst = read_signals("Resource\\ClosedEyes.asc")[0][3:103]
+    sigFirst = read_signals("../DigitalSignalProcessing/Resources/ClosedEyes.asc")[0][3:103]
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))

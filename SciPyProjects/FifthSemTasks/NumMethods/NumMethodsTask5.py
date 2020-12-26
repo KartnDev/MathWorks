@@ -46,11 +46,14 @@ def generate_b_coefficients(y_vector: Iterable, h_array: Iterable, c_coefficient
 
 
 def generate_spline(X, Y) -> Callable:
+    assert len(X) == len(Y), "x and y have different sizes!"
+
     h_array = np.array([X[i + 1] - X[i] for i in range(len(X) - 1)])
 
     rhs_tridiagonal_matrix = get_tridiagonal(h_array)
     lhs_phi_vector = calculate_phi(Y, h_array)
 
+    a_coefficients = Y
     c_coefficients = tridiagonal_matrix_solver(rhs_tridiagonal_matrix, lhs_phi_vector)
     c_coefficients = np.append(c_coefficients, 0)
     d_coefficients = generate_d_coefficients(c_coefficients, h_array)
@@ -67,10 +70,10 @@ def generate_spline(X, Y) -> Callable:
             if index == 0:
                 temp = Y[index]
             else:
-                temp = Y[index] \
-                       + b_coefficients[index - 1] * (x - X[index]) \
-                       + c_coefficients[index - 1] * (x - X[index])**2/2 \
-                       + d_coefficients[index - 1] * (x - X[index])**3/6
+                temp = a_coefficients[index] +\
+                       b_coefficients[index - 1] * (x - X[index]) +\
+                       c_coefficients[index - 1] * (x - X[index])**2/2 +\
+                       d_coefficients[index - 1] * (x - X[index])**3/6
             result.append(temp)
         return np.array(result)
 
