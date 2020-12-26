@@ -8,7 +8,7 @@ from numba import jit, prange
 
 def read_file(path_file, number_signal=1, J=4):
     signal = []
-    with open('..\\Resources\\ClosedEyes.asc') as file:
+    with open(path_file) as file:
         for elem in file.read().split('\n'):
             values_list = elem.split(' ')
             if len(values_list) == 3:
@@ -26,11 +26,13 @@ class HaarSystem(object):
         self.J = int(math.ceil(math.log2(self.M)))
         self.M = 2 ** self.J
 
+        self.accuracy = 'Not calculated'
+
         self.S = [[0 for _ in range(self.M)] for _ in range(self.J + 1)]
         self.d = [[0 for _ in range(self.M)] for _ in range(self.J + 1)]
 
-    def from_file_signal(self, path_file):
-        self.signal = read_file(path_file, 1, self.J)
+    def from_file_signal(self, path_file, num):
+        self.signal = read_file(path_file, num, self.J)
         return self
 
     def build_haar(self):
@@ -54,7 +56,7 @@ class HaarSystem(object):
         for j in range(self.J + 1):
             for m in range(self.M):
                 check_left += (self.d[j][m] ** 2)
-        print(f'Difference = {check_right - (check_left + (self.S[self.J][0] ** 2))}')
+        self.accuracy = check_right - (check_left + (self.S[self.J][0] ** 2))
         return self
 
     def with_plot(self):
@@ -62,14 +64,16 @@ class HaarSystem(object):
         plt.figure()
         plt.plot(x, self.signal, color='red')
         plt.plot(x, self.S[0], '--')
-        plt.legend(['Signal', 'S[0]'])
+        plt.legend(['Signal', 'S[0] - interpolated'])
+        plt.title(f'Difference: {self.accuracy}')
         plt.show()
         return self
 
 
 if __name__ == '__main__':
-    HaarSystem(5) \
-        .from_file_signal("..\\Resources\\ClosedEyes.asc") \
+    HaarSystem(128) \
+        .from_file_signal("..\\Resources\\ClosedEyes.asc", 1) \
         .build_haar() \
         .with_check() \
-        .with_plot()
+        .with_plot() \
+
