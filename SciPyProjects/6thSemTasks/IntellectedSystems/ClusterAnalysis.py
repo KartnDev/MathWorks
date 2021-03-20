@@ -3,10 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from numpy import dtype, int64, float64
 from pandas import DataFrame, Int64Dtype
+from scipy.cluster._hierarchy import linkage
 from sklearn import preprocessing
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.manifold import MDS
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize, StandardScaler
+from scipy.cluster.hierarchy import dendrogram, linkage
+
 import scipy.cluster.hierarchy as shc
 
 
@@ -28,6 +31,28 @@ def optimize_csv(csv: DataFrame):
             csv[column_alias] = normalize(np.array(current_column)[:, np.newaxis], axis=0).ravel()
 
 
+def plot_dendrogram(model, **kwargs):
+    # Create linkage matrix and then plot the dendrogram
+
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack([model.children_, model.distances_,
+                                      counts]).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix, **kwargs)
+
+
 if __name__ == '__main__':
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
@@ -45,10 +70,7 @@ if __name__ == '__main__':
 
     data['work/hrs'] = preprocessing.scale(data['work/hrs'])
 
-    k_means = KMeans()
-    k_means.fit(data)
-
-    embedding = MDS(n_components=2)
-    x = embedding.fit_transform(k_means.cluster_centers_)
-    plt.scatter(x[:, 0], x[:, 1])
+    model = AgglomerativeClustering(distance_threshold=0, n_clusters=None)
+    model = model.fit(data)
+    plot_dendrogram(model, truncate_mode='level', p=3)
     plt.show()
