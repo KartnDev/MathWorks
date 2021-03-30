@@ -122,17 +122,20 @@ def find_total_inform(matrix: np.array):
 if __name__ == '__main__':
     prob_matrix = np.loadtxt('input.txt')
     output_file = open('../../../../../Desktop/ghfg/output.txt', 'w')
-    output_file
+    print("input:\n")
+    print(prob_matrix)
 
     entropy = find_entropy(prob_matrix)
     conditional_entropy = find_conditional_entropy(prob_matrix)
 
-    output_file.write(
-        f"""H(X)={entropy[0]}
-H(Y)={entropy[1]}
-H(X|Y)={conditional_entropy[0]}
-H(Y|X)={conditional_entropy[1]}
-H(X,Y)={get_total_entropy(prob_matrix)}
-I(X;Y)={find_total_inform(prob_matrix)}""")
+    result: str = "H(X)=" + str(np.round(entropy[0], 3)) + "\n" + \
+                  "H(Y)=" + str(np.round(entropy[1], 3)) + "\n" + \
+                  "H(X|Y)=" + str(np.round(conditional_entropy[0], 3)) + "\n" + \
+                  "H(Y|X)=" + str(np.round(conditional_entropy[1], 3)) + "\n" + \
+                  "H(X,Y)=" + str(np.round(get_total_entropy(prob_matrix), 3)) + "\n" + \
+                  "I(X;Y)=" + str(np.round(find_total_inform(prob_matrix), 3))
 
+    print("result:")
+    print(result)
+    output_file.write(result)
     output_file.close()
